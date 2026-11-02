@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Holiday Book Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#dff3e8; --card:#ffffff; --off:#c9cfd2; --off-ink:#7d878c;
+  --ink:#2a1830; --red:#d62839; --green:#1f7a4f; --gold:#ffc933; --snow:#ffffff;
+  --title:#ffffff; --flake:rgba(255,255,255,.9);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f2b1e; --card:#1f4a35; --off:#2a3a33; --off-ink:#6d7f76;
+    --ink:#0b0610; --flake:rgba(255,255,255,.55); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f2b1e; --card:#1f4a35; --off:#2a3a33; --off-ink:#6d7f76;
+  --ink:#0b0610; --flake:rgba(255,255,255,.55); color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+  font-family:"Fredoka","Chalkboard SE","Comic Sans MS",system-ui,sans-serif; font-weight:500;
+  position:relative; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(circle,var(--flake) 0 3px,transparent 4px),
+    radial-gradient(circle,var(--flake) 0 2px,transparent 3px),
+    radial-gradient(circle,var(--flake) 0 4px,transparent 5px);
+  background-size:170px 170px,110px 110px,240px 240px;
+  background-position:0 0,40px 60px,90px 20px;
+  animation:snow 22s linear infinite;
+}
+@keyframes snow{to{background-position:30px 170px,-20px 170px,110px 240px}}
+main{position:relative; z-index:1; max-width:980px; margin:0 auto; padding:20px 12px 40px}
+h1{
+  margin:8px 0 4px; text-align:center; color:var(--title);
+  font-size:clamp(2rem,7vw,3.6rem); font-weight:700; line-height:1.05;
+  -webkit-text-stroke:8px var(--red); paint-order:stroke fill;
+  text-shadow:0 5px 0 var(--ink);
+}
+.sub{text-align:center; margin:0 0 20px; font-size:clamp(1rem,2.6vw,1.2rem)}
+.sub b{background:var(--gold); border:3px solid var(--ink); border-radius:999px; padding:2px 12px}
+.grid{display:grid; grid-template-columns:repeat(7,1fr); gap:clamp(4px,1.2vw,10px)}
+.dow{
+  text-align:center; font-weight:700; color:#fff; background:var(--green);
+  border:3px solid var(--ink); border-radius:12px; padding:4px 0;
+  font-size:clamp(.7rem,2.4vw,1.1rem);
+}
+.dow.we{background:var(--off-ink)}
+.day{
+  position:relative; aspect-ratio:1/1.12; background:var(--card);
+  border:3px solid var(--ink); border-radius:clamp(8px,2vw,16px);
+  box-shadow:0 4px 0 var(--ink); overflow:hidden;
+}
+.day.weekend{background:var(--off); box-shadow:none; border-color:var(--off-ink)}
+.day.weekend .num{color:var(--off-ink); background:transparent}
+.day.today{outline:4px solid var(--gold); outline-offset:2px}
+.num{
+  position:absolute; top:3px; left:4px; z-index:3; font-weight:700;
+  font-size:clamp(.65rem,2.2vw,1.05rem); line-height:1; padding:2px 5px;
+  background:var(--gold); color:#2a1830; border-radius:8px;
+}
+.tag{
+  position:absolute; bottom:3px; left:50%; transform:translateX(-50%); z-index:3;
+  background:var(--red); color:#fff; border:2px solid var(--ink); border-radius:999px;
+  font-size:clamp(.5rem,1.6vw,.8rem); padding:0 7px; white-space:nowrap;
+}
+.flake{position:absolute; inset:0; display:grid; place-items:center; font-size:clamp(1rem,4vw,2rem); opacity:.25}
+.x{position:absolute; inset:6%; z-index:4; pointer-events:none; width:88%; height:88%}
+.flip{position:absolute; inset:0; perspective:700px; padding:0; border:0; background:none; font:inherit}
+button.flip{cursor:pointer}
+.inner{position:absolute; inset:0; transition:transform .7s cubic-bezier(.3,1.4,.5,1); transform-style:preserve-3d}
+.opened .inner{transform:rotateY(180deg)}
+.face{position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:grid; place-items:center}
+.face svg{width:84%; height:84%; margin-top:10%; overflow:visible}
+.back{transform:rotateY(180deg)}
+button.flip:not(:disabled):not(.opened):hover .front svg{transform:rotate(-6deg) scale(1.08)}
+.front svg{transition:transform .2s}
+.flip:focus-visible{outline:4px solid var(--red); outline-offset:-4px; border-radius:12px}
+.locked .front{opacity:.45; filter:saturate(.4)}
+.locked{cursor:not-allowed}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-4px) rotate(-3deg)}75%{transform:translateX(4px) rotate(3deg)}}
+.confetti{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50}
+.confetti i{position:absolute; top:-5vh; border:1.5px solid var(--ink); animation-name:fall; animation-timing-function:linear; animation-fill-mode:both}
+@keyframes fall{0%{transform:translate3d(0,0,0) rotate(0)} 100%{transform:translate3d(var(--sway),110vh,0) rotate(var(--spin))}}
+.holiday{
+  grid-column:1/-1; display:grid; place-items:center; text-align:center;
+  min-height:clamp(70px,15vw,146px); background:var(--red); color:#fff;
+  border:3px solid var(--ink); border-radius:clamp(8px,2vw,16px); box-shadow:0 4px 0 var(--ink);
+  font-size:clamp(1.6rem,7vw,3.4rem); font-weight:700; line-height:1.1;
+  -webkit-text-stroke:5px var(--ink); paint-order:stroke fill; text-shadow:0 4px 0 var(--ink);
+}
+.preview{display:flex; flex-wrap:wrap; gap:8px 10px; justify-content:center; align-items:center; margin:-6px 0 18px; font-size:.95rem}
+.preview input,.preview button{font:inherit; color:var(--ink); background:var(--card); border:3px solid var(--ink); border-radius:12px; padding:3px 10px; box-shadow:0 3px 0 var(--ink)}
+.preview button{cursor:pointer; background:var(--gold)}
+.preview[hidden]{display:none}
+#dates{user-select:none; -webkit-user-select:none; touch-action:manipulation}
+@media (prefers-reduced-motion:reduce){body::before{animation:none} .inner{transition:none} .shake{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Library Tech Advent</h1>
+  <p class="sub"><b id="dates">Nov 1 – Dec 19, 2026</b> Open a book every Tuesday and Thursday!</p>
+  <div class="preview" id="previewBar" hidden>
+    <label for="pick">Preview date:</label>
+    <input type="date" id="pick" min="2026-10-01" max="2026-12-31">
+    <button type="button" id="resetDate">Use real date</button>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+(function(){
+  var DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var FULL=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var LONG=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var grid=document.getElementById("grid");
+  function confetti(){
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var box=document.createElement("div");
+    box.className="confetti"; box.setAttribute("aria-hidden","true");
+    var cols=["#d62839","#1f7a4f","#ffc933","#ffffff","#3aa0ff","#ff7ab8"];
+    for(var i=0;i<140;i++){
+      var p=document.createElement("i");
+      var s=6+Math.random()*8;
+      p.style.cssText="left:"+(Math.random()*100)+"%;width:"+s+"px;height:"+(s*(Math.random()<.5?1:.45))+"px;background:"+cols[i%cols.length]+";animation-duration:"+(3+Math.random()*3)+"s;animation-delay:"+(Math.random()*1.8)+"s;--sway:"+(Math.random()*160-80)+"px;--spin:"+(360+Math.random()*720)+"deg";
+      if(i%5===0) p.style.borderRadius="50%";
+      box.appendChild(p);
+    }
+    document.body.appendChild(box);
+    setTimeout(function(){box.remove()},8500);
+  }
+  var preview=null;
+  function getToday(){
+    if(preview) return preview;
+    var n=new Date();
+    return new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  }
+  var opened={}, pOpened={};
+  try{opened=JSON.parse(localStorage.getItem("xmas-books")||"{}")}catch(e){}
+  try{pOpened=JSON.parse(localStorage.getItem("xmas-books-preview")||"{}")}catch(e){}
+  function save(){try{localStorage.setItem("xmas-books",JSON.stringify(opened));localStorage.setItem("xmas-books-preview",JSON.stringify(pOpened))}catch(e){}}
+
+  function render(){
+  grid.innerHTML="";
+  var today=getToday();
+  var store=preview?pOpened:opened;
+  DAYS.forEach(function(d,i){
+    var h=document.createElement("div");
+    h.className="dow"+(i===0||i===6?" we":"");
+    h.textContent=d;
+    grid.appendChild(h);
+  });
+
+  function closedBook(cover){
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">'+
+      '<ellipse cx="50" cy="92" rx="30" ry="5" fill="#2a1830" opacity=".18"/>'+
+      '<rect x="22" y="12" width="60" height="76" rx="6" fill="#fffaf0" stroke="#2a1830" stroke-width="4"/>'+
+      '<rect x="16" y="8" width="60" height="76" rx="6" fill="'+cover+'" stroke="#2a1830" stroke-width="4"/>'+
+      '<rect x="16" y="8" width="11" height="76" rx="5" fill="#000" opacity=".22"/>'+
+      '<path d="M27 8v76" stroke="#2a1830" stroke-width="3"/>'+
+      '<circle cx="52" cy="46" r="17" fill="#ffc933" stroke="#2a1830" stroke-width="4"/>'+
+      '<text x="52" y="55" text-anchor="middle" font-family="Fredoka,Comic Sans MS,sans-serif" font-weight="700" font-size="28" fill="#2a1830">?</text>'+
+      '<circle cx="36" cy="20" r="2.5" fill="#ffc933"/><circle cx="68" cy="72" r="2.5" fill="#ffc933"/>'+
+      '</svg>';
+  }
+  function openBook(n,cover){
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">'+
+      '<ellipse cx="50" cy="90" rx="42" ry="5" fill="#2a1830" opacity=".18"/>'+
+      '<path d="M2 24L50 32L98 24V82L50 90L2 82Z" fill="'+cover+'" stroke="#2a1830" stroke-width="4" stroke-linejoin="round"/>'+
+      '<path d="M7 28L48 35V84L7 77Z" fill="#fffaf0" stroke="#2a1830" stroke-width="3" stroke-linejoin="round"/>'+
+      '<path d="M52 35L93 28V77L52 84Z" fill="#fffaf0" stroke="#2a1830" stroke-width="3" stroke-linejoin="round"/>'+
+      '<path d="M27 52l4 8 9 1-6.500 6 2 9-8.500-4.500L19 76l2-9-6.500-6 9-1z" fill="#ffc933" stroke="#2a1830" stroke-width="2.500" stroke-linejoin="round"/>'+
+      '<text x="72" y="66" text-anchor="middle" font-family="Fredoka,Comic Sans MS,sans-serif" font-weight="700" font-size="32" fill="#d62839" stroke="#2a1830" stroke-width="1.500" paint-order="stroke">'+n+'</text>'+
+      '</svg>';
+  }
+  var X='<svg class="x" viewBox="0 0 100 100" aria-hidden="true">'+
+    '<path d="M12 12L88 88M88 12L12 88" stroke="#2a1830" stroke-width="20" stroke-linecap="round"/>'+
+    '<path d="M12 12L88 88M88 12L12 88" stroke="#e11d2e" stroke-width="12" stroke-linecap="round"/></svg>';
+
+  var bookIdx=0;
+  for(var i=0;i<49;i++){
+    var date=new Date(2026,10,1+i);
+    var dow=date.getDay(), dom=date.getDate(), mo=date.getMonth();
+    var past=date<today, isToday=date.getTime()===today.getTime();
+    var cell=document.createElement("div");
+    cell.className="day";
+    var label=(dom===1||i===0)?MON[mo]+" "+dom:dom;
+    cell.innerHTML='<span class="num">'+label+'</span>';
+
+    if(dow===0||dow===6){
+      cell.classList.add("weekend");
+    }else if(dow===2||dow===4){
+      var count=13-bookIdx, key=date.getFullYear()+"-"+(mo+1)+"-"+dom;
+      var cover=bookIdx%2===0?"#d62839":"#1f7a4f";
+      bookIdx++;
+      var canOpen=past||isToday;
+      var name=FULL[dow]+", "+LONG[mo]+" "+dom;
+      var b=document.createElement("button");
+      b.type="button";
+      b.className="flip"+(canOpen?"":" locked")+(store[key]&&canOpen?" opened":"");
+      b.setAttribute("aria-label",name+(canOpen?": open the book":": locked until this day"));
+      b.innerHTML='<div class="inner"><div class="face front">'+closedBook(cover)+'</div><div class="face back">'+openBook(count,cover)+'</div></div>';
+      (function(b,key,canOpen,count){
+        b.addEventListener("click",function(){
+          if(!canOpen){b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");return}
+          var first=!b.classList.contains("opened");
+          b.classList.add("opened");
+          b.setAttribute("aria-label",b.getAttribute("aria-label").replace("open the book","book opened"));
+          store[key]=1; save();
+          if(first&&count===0) setTimeout(confetti,350);
+        });
+      })(b,key,canOpen,count);
+      cell.appendChild(b);
+    }else{
+      if(past){cell.insertAdjacentHTML("beforeend",X)}
+      else{cell.insertAdjacentHTML("beforeend",'<div class="flake" aria-hidden="true">❄</div>')}
+    }
+    if(isToday){cell.classList.add("today");cell.insertAdjacentHTML("beforeend",'<span class="tag">Today</span>')}
+    grid.appendChild(cell);
+  }
+  var hb=document.createElement("div");
+  hb.className="holiday";
+  hb.textContent="Happy Holidays!";
+  grid.appendChild(hb);
+  }
+
+  var pick=document.getElementById("pick");
+  pick.addEventListener("change",function(){
+    if(!pick.value) return;
+    var p=pick.value.split("-");
+    preview=new Date(+p[0],+p[1]-1,+p[2]);
+    render();
+  });
+  document.getElementById("resetDate").addEventListener("click",function(){
+    preview=null; pOpened={}; pick.value=""; save();
+    render();
+  });
+  document.getElementById("dates").addEventListener("dblclick",function(){
+    var bar=document.getElementById("previewBar");
+    bar.hidden=!bar.hidden;
+  });
+  render();
+})();
+</script>
+</body>
+</html>
